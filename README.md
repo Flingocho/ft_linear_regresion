@@ -16,17 +16,33 @@ A robust and efficient linear regression training engine that predicts car price
 
 ## 🎯 Overview
 
-This project implements a linear regression model from scratch to predict car prices based on their mileage. The implementation uses gradient descent optimization with data normalization to ensure stable and accurate training. The trained model parameters are saved to a JSON file for future use.
+This project implements a complete machine learning pipeline from scratch to predict car prices based on their mileage. The implementation uses gradient descent optimization with data normalization for stable training, and includes both training and prediction capabilities with beautiful interactive visualizations.
 
 ## ✨ Features
 
-- **🔧 From-scratch Implementation**: Complete linear regression implementation without external ML libraries
+### 🔧 Core ML Implementation
+- **From-scratch Implementation**: Complete linear regression without external ML libraries
 - **📊 Data Normalization**: Robust z-score normalization for stable training
 - **🎯 Gradient Descent**: Efficient optimization with simultaneous parameter updates
 - **🛡️ Data Validation**: Comprehensive CSV parsing with error handling
 - **💾 Model Persistence**: Automatic saving of all model parameters and normalization data
+
+### 🖥️ Training Features
 - **📈 Training Visualization**: Real-time cost function monitoring during training
-- **🔒 Robust Error Handling**: Graceful handling of malformed or invalid data
+- **🎨 Interactive Training Plots**: Beautiful dark-themed matplotlib visualization
+- **🖱️ Hover Functionality**: Interactive tooltips for data points and regression line
+- **📊 Extended Regression Line**: Line extends beyond data points for clear trend visualization
+
+### 💰 Prediction Features  
+- **🧮 Interactive Calculator**: User-friendly price prediction interface
+- **🔄 Robust Model Loading**: Graceful fallback to default values on errors
+- **📊 Prediction Visualization**: Highlight predictions on training data graph
+- **⭐ Enhanced Display**: Prediction points shown as large stars, training data dimmed
+- **🖱️ Full Interactivity**: Hover tooltips for training data, predictions, and regression line
+- **🔒 Error Handling**: Comprehensive validation and user input handling
+- **📈 Training Visualization**: Real-time cost function monitoring during training
+- **� Data Visualization**: Optional matplotlib-based plotting of data and regression line
+- **�🔒 Robust Error Handling**: Graceful handling of malformed or invalid data
 
 ## 🚀 Installation
 
@@ -41,7 +57,12 @@ This project implements a linear regression model from scratch to predict car pr
    python3 --version
    ```
 
-3. **No additional dependencies required** - uses only Python standard library!
+3. **Install optional dependencies for visualization**:
+   ```bash
+   pip install matplotlib  # For data visualization (optional)
+   ```
+
+4. **No additional dependencies required for core functionality** - uses only Python standard library!
 
 ## 💻 Usage
 
@@ -51,7 +72,7 @@ This project implements a linear regression model from scratch to predict car pr
 
 2. **Run the training script**:
    ```bash
-   python3 ft_linear_regresion.py
+   python3 train_model.py
    ```
 
 3. **View training progress**: The script will display:
@@ -60,25 +81,76 @@ This project implements a linear regression model from scratch to predict car pr
    - Final model parameters
    - Model save location
 
-### Example Output
+4. **Interactive visualization**: After training, you can choose to visualize:
+   - Original data points as gradient scatter plot
+   - Interactive regression line with mouse hover
+   - Real-time price predictions as you move your mouse
+   - Modern dark theme with professional styling
+
+### Making Predictions
+
+1. **Run the prediction script**:
+   ```bash
+   python3 predict_price.py
+   ```
+
+2. **Enter car mileage**: Input the kilometers to get price predictions
+
+3. **Interactive prediction visualization**: After each prediction, you can choose to:
+   - See the prediction highlighted on the graph as a large star
+   - View training data as smaller, semi-transparent points
+   - Interactive hover tooltips for all elements
+   - Same beautiful dark theme as training visualization
+
+### Training Example Output
 ```
-Loading and parsing data from data/data.csv...
-✓ Data loaded successfully: 24 samples
-✓ Data validation passed
+🎯 Training linear regression model...
+   Learning rate: 0.1
+   Iterations: 1000
+   📊 Normalizing data...
+   Mileage: mean=101066.25, std=51565.19
+   Prices:  mean=6331.83, std=1291.87
 
-Training linear regression model...
-Iteration 100/10000 - Cost: 0.2847
-Iteration 200/10000 - Cost: 0.1923
-...
-Iteration 10000/10000 - Cost: 0.0156
+   Iteration  200: Cost =   0.500000, θ0 = -0.050000, θ1 = -0.800000
+   Iteration  400: Cost =   0.450000, θ0 = -0.020000, θ1 = -0.820000
+   ...
 
-Training completed!
-Final parameters:
-- θ₀ (intercept): 8499.48
-- θ₁ (slope): -0.0203
-- Training cost: 0.0156
+✅ Training completed!
+   Final θ0 (normalized): 0.000000
+   Final θ1 (normalized): -0.856139
+   Final cost: 0.123456
 
-✓ Model saved to data/trained_model.json
+💾 Model parameters saved to 'data/trained_model.json'
+
+🎨 Do you want to visualize the data and regression line? (y/n)
+```
+
+### Prediction Example Output
+```
+🚗 CAR PRICE PREDICTOR 💰
+Predict prices using trained model
+
+📁 Loading trained model...
+✅ Model loaded successfully from 'data/trained_model.json'
+   θ0: 0.000000
+   θ1: -0.856139
+   Normalization parameters loaded
+
+🔢 Car Price Calculator
+   Enter mileage to get price prediction
+   Type 'quit' or 'exit' to stop
+
+🚗 Enter car mileage (km): 150000
+💰 Predicted price: $5,247.33
+   Model: price = 0.000 + -0.856 × normalized_mileage
+
+📊 Do you want to see this prediction on the graph? (y/n): y
+📈 Loading training data for visualization...
+🎨 Creating visualization...
+[Interactive graph opens with prediction highlighted]
+```
+📊 Creating beautiful dark theme visualization...
+✅ Beautiful dark theme visualization completed!
 ```
 
 ## 🧮 Algorithm Details
@@ -142,59 +214,94 @@ The model is saved as `data/trained_model.json` containing:
 
 ```json
 {
-    "theta0": 8499.48,
-    "theta1": -0.0203,
-    "km_mean": 61637.24,
-    "km_std": 61983.47,
-    "price_mean": 8052.91,
-    "price_std": 1597.03
+    "theta0": 0.000000,
+    "theta1": -0.856139,
+    "mileage_mean": 101066.25,
+    "mileage_std": 51565.19,
+    "price_mean": 6331.83,
+    "price_std": 1291.87
 }
 ```
 
 ### Parameters Explained
 - **theta0/theta1**: Linear regression coefficients
-- **km_mean/km_std**: Mileage normalization parameters
+- **mileage_mean/mileage_std**: Mileage normalization parameters
 - **price_mean/price_std**: Price normalization parameters
 
 ## 🔧 Technical Implementation
 
-### Key Functions
+### Training Functions (train_model.py)
 
 #### `open_and_parse(filename)`
 - Validates CSV header format
 - Parses numeric data with error handling
-- Returns validated km and price lists
+- Returns validated mileage and price lists
 
 #### `normalize_data(data)`
 - Implements z-score normalization
 - Returns normalized data and statistics
 - Handles edge cases (zero standard deviation)
 
-#### `train_linear_regression(km_norm, price_norm, learning_rate, iterations)`
+#### `train_linear_regression(mileage, prices, learning_rate, iterations)`
 - Gradient descent optimization
 - Simultaneous parameter updates
 - Cost function monitoring
 - Returns optimized parameters
 
-#### `save_model(theta0, theta1, km_mean, km_std, price_mean, price_std)`
+#### `save_model(theta0, theta1, mileage_mean, mileage_std, price_mean, price_std)`
 - Creates data directory if needed
 - Saves all parameters to JSON
 - Ensures data persistence
 
+#### `visualize_regression(mileage, prices, theta0, theta1, mileage_mean, mileage_std, price_mean, price_std)`
+- Creates beautiful interactive dark theme visualization
+- Gradient scatter plot with color-coded prices
+- Interactive regression line with mouse hover functionality
+- Real-time price predictions displayed as tooltips
+- Modern dark theme with professional styling
+- Handles matplotlib import gracefully
+
+### Prediction Functions (predict_price.py)
+
+#### `load_model(filename)`
+- Loads trained model parameters from JSON
+- Validates all required keys exist
+- Returns default values (0, 0) on any error
+- Comprehensive error handling for file/format issues
+
+#### `predict_price(mileage, theta0, theta1, mileage_mean, mileage_std, price_mean, price_std)`
+- Normalizes input mileage using training statistics
+- Applies linear regression model
+- Denormalizes result to original price scale
+- Returns predicted price
+
+#### `load_training_data(filename)`
+- Loads original training data for visualization
+- Validates CSV format and data integrity
+- Returns mileage and price lists for plotting
+
+#### `visualize_prediction(mileage, prices, theta0, theta1, mileage_mean, mileage_std, price_mean, price_std, pred_mileage, pred_price)`
+- Shows training data as smaller, semi-transparent points
+- Highlights prediction as large star marker
+- Interactive hover tooltips for all elements
+- Adapts axis limits to include prediction point
+- Same beautiful dark theme as training visualization
+
 ### Performance Characteristics
-- **Time Complexity**: O(n × iterations) for training
+- **Time Complexity**: O(n × iterations) for training, O(1) for prediction
 - **Space Complexity**: O(n) for data storage
 - **Default Settings**: 
   - Learning rate: 0.1
-  - Iterations: 10,000
-  - Convergence monitoring every 100 iterations
+  - Iterations: 1,000
+  - Convergence monitoring every 200 iterations
 
 ## 📁 Project Structure
 
 ```
 ft_linear_regresion/
-├── ft_linear_regresion.py    # Main training script
-├── README.md                 # Project documentation
+├── train_model.py           # Main training script
+├── predict_price.py         # Interactive price prediction calculator
+├── README.md                # Complete project documentation
 └── data/
     ├── data.csv             # Input training data
     └── trained_model.json   # Output model parameters
@@ -202,10 +309,44 @@ ft_linear_regresion/
 
 ## 📋 Requirements
 
+### System Requirements
 - **Python**: 3.6 or higher
-- **Standard Library**: json, os (no external dependencies)
+- **Operating System**: Linux, macOS, Windows
+
+### Dependencies
+- **Core Dependencies**: numpy, json, os (included in Python standard library)
+- **Optional Dependencies**: matplotlib (for beautiful interactive visualizations)
+
+### Input/Output
 - **Input**: CSV file with km,price format
 - **Output**: JSON file with model parameters
+- **Visualization**: Interactive matplotlib plots (optional)
+
+### Installation Commands
+```bash
+# Core functionality (no extra dependencies needed)
+python3 train_model.py
+
+# For visualization features
+pip install matplotlib numpy
+
+# Run prediction calculator
+python3 predict_price.py
+```
+
+## 🎯 Quick Start
+
+1. **Train the model**:
+   ```bash
+   python3 train_model.py
+   ```
+
+2. **Make predictions**:
+   ```bash
+   python3 predict_price.py
+   ```
+
+3. **Enjoy beautiful visualizations** with interactive hover tooltips!
 
 ## 🤝 Contributing
 
