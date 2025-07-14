@@ -18,6 +18,10 @@ A robust and efficient linear regression training engine that predicts car price
 
 This project implements a complete machine learning pipeline from scratch to predict car prices based on their mileage. The implementation uses gradient descent optimization with data normalization for stable training, and includes both training and prediction capabilities with beautiful interactive visualizations.
 
+![Sample Visualization](images/sample.png)
+
+*Beautiful interactive visualization with dark theme, hover tooltips, and highlighted predictions*
+
 ## ✨ Features
 
 ### 🔧 Core ML Implementation
@@ -207,7 +211,20 @@ x_normalized = (x - μ) / σ
 - Handles missing or malformed entries
 - Provides detailed error messages
 
-## 📤 Output
+## �️ Sample Visualization
+
+Here's what the interactive visualization looks like with the training data and a prediction:
+
+![Sample Visualization](images/sample.png)
+
+*Interactive dark-themed visualization showing:*
+- **Training data points** (gradient-colored by price)
+- **Regression line** (blue, extends beyond data)
+- **Prediction point** (large pink star)
+- **Hover tooltips** for all elements
+- **Beautiful dark theme** with professional styling
+
+## �📤 Output
 
 ### Trained Model File
 The model is saved as `data/trained_model.json` containing:
