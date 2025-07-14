@@ -379,4 +379,6 @@ This project is part of an educational exercise in machine learning fundamentals
 
 ---
 
-*Built with ❤️ using pure Python - no external ML libraries required!*
+<div align="center">
+  Created with ❤️ by <a href="https://github.com/Flingocho">Flingocho</a>
+</div>
