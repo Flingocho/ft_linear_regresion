@@ -391,7 +391,7 @@ def main():
     choice = input().lower()
     if choice == 'y' or choice == 'yes':
         visualize_regression(mileage, prices, theta0, theta1, mileage_mean, mileage_std, price_mean, price_std)
-    print(f"Exiting... ¡Bye!")
+    print("\n👋 Exiting... ¡Bye!")
 
 if __name__ == '__main__':
     main()

@@ -357,7 +357,7 @@ def main():
             
             # Check for exit commands
             if user_input.lower() in ['quit', 'exit', 'q']:
-                print("\n👋 Goodbye!")
+                print("\n👋 Exiting... Bye!")
                 break
             
             # Try to convert to float
