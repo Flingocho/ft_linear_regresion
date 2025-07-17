@@ -8,11 +8,19 @@ def load_model(filename="data/trained_model.json"):
     Load trained model parameters from JSON file
     Returns default values (0, 0) if any error occurs
     """
+    # Check for data2 model first, then fallback to original
+    if filename == "data/trained_model.json" and os.path.exists("data/trained_model2.json"):
+        print("🔍 Found expanded dataset model (data2), using it for better accuracy...")
+        filename = "data/trained_model2.json"
+        data_file = "data/data2.csv"
+    else:
+        data_file = "data/data.csv"
+    
     try:
         # Check if file exists
         if not os.path.exists(filename):
             print(f"❌ Model file '{filename}' not found. Using default values.")
-            return 0, 0, 0, 1, 0, 1
+            return 0, 0, 0, 1, 0, 1, "data/data.csv"
         
         # Try to load and parse JSON
         with open(filename, 'r') as f:
@@ -23,7 +31,7 @@ def load_model(filename="data/trained_model.json"):
         for key in required_keys:
             if key not in model_data:
                 print(f"❌ Missing key '{key}' in model file. Using default values.")
-                return 0, 0, 0, 1, 0, 1
+                return 0, 0, 0, 1, 0, 1, "data/data.csv"
         
         # Extract parameters
         theta0 = float(model_data["theta0"])
@@ -38,17 +46,17 @@ def load_model(filename="data/trained_model.json"):
         print(f"   θ1: {theta1:.6f}")
         print(f"   Normalization parameters loaded")
         
-        return theta0, theta1, mileage_mean, mileage_std, price_mean, price_std
+        return theta0, theta1, mileage_mean, mileage_std, price_mean, price_std, data_file
         
     except json.JSONDecodeError:
         print(f"❌ Invalid JSON format in '{filename}'. Using default values.")
-        return 0, 0, 0, 1, 0, 1
+        return 0, 0, 0, 1, 0, 1, "data/data.csv"
     except ValueError as e:
         print(f"❌ Invalid data types in model file: {e}. Using default values.")
-        return 0, 0, 0, 1, 0, 1
+        return 0, 0, 0, 1, 0, 1, "data/data.csv"
     except Exception as e:
         print(f"❌ Error loading model: {e}. Using default values.")
-        return 0, 0, 0, 1, 0, 1
+        return 0, 0, 0, 1, 0, 1, "data/data.csv"
 
 def normalize_mileage(mileage, mileage_mean, mileage_std):
     """Normalize mileage using saved parameters"""
@@ -328,6 +336,77 @@ def visualize_prediction(mileage, prices, theta0, theta1, mileage_mean, mileage_
     except Exception as e:
         print(f"❌ Error creating visualization: {e}")
 
+def calculate_model_precision(theta0, theta1, mileage_mean, mileage_std, price_mean, price_std, data_file="data/data.csv"):
+    """
+    Calculate and display model precision metrics based on training data
+    """
+    if theta0 == 0 and theta1 == 0:
+        return None
+    
+    try:
+        # Load training data to calculate precision
+        training_mileage, training_prices = load_training_data(data_file)
+        if not training_mileage or not training_prices:
+            return None
+        
+        # Calculate predictions for all training data
+        predictions = []
+        for km in training_mileage:
+            pred_price = predict_price(km, theta0, theta1, mileage_mean, mileage_std, price_mean, price_std)
+            predictions.append(pred_price)
+        
+        # Convert to numpy arrays for calculations
+        y_true = np.array(training_prices)
+        y_pred = np.array(predictions)
+        
+        # Calculate metrics
+        mae = np.mean(np.abs(y_true - y_pred))  # Mean Absolute Error
+        mse = np.mean((y_true - y_pred) ** 2)   # Mean Squared Error
+        rmse = np.sqrt(mse)                     # Root Mean Squared Error
+        
+        # Calculate R-squared (coefficient of determination)
+        ss_res = np.sum((y_true - y_pred) ** 2)
+        ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
+        
+        # Calculate Mean Absolute Percentage Error (MAPE)
+        mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+        
+        # Display precision metrics
+        print(f"\n📊 Model Precision Analysis:")
+        print(f"   Training data points: {len(training_mileage)}")
+        print(f"   Mean Absolute Error (MAE): ${mae:,.2f}")
+        print(f"   Root Mean Squared Error (RMSE): ${rmse:,.2f}")
+        print(f"   R-squared (R²): {r_squared:.4f} ({r_squared*100:.2f}%)")
+        print(f"   Mean Absolute Percentage Error (MAPE): {mape:.2f}%")
+        
+        # Interpretation
+        if r_squared >= 0.9:
+            quality = "Excellent"
+        elif r_squared >= 0.8:
+            quality = "Very Good"
+        elif r_squared >= 0.7:
+            quality = "Good"
+        elif r_squared >= 0.5:
+            quality = "Fair"
+        else:
+            quality = "Poor"
+        
+        print(f"   Model Quality: {quality}")
+        print(f"   Average prediction error: ±${mae:,.0f}")
+        
+        return {
+            'mae': mae,
+            'rmse': rmse,
+            'r_squared': r_squared,
+            'mape': mape,
+            'quality': quality
+        }
+        
+    except Exception as e:
+        print(f"❌ Error calculating precision: {e}")
+        return None
+
 def main():
     print("=" * 60)
     print("║" + " " * 58 + "║")
@@ -338,13 +417,20 @@ def main():
     
     print("\n📁 Loading trained model...")
     # Load model parameters (defaults to 0,0 if any error)
-    theta0, theta1, mileage_mean, mileage_std, price_mean, price_std = load_model()
+    theta0, theta1, mileage_mean, mileage_std, price_mean, price_std, data_file = load_model()
+    
+    # Calculate and display model precision
+    if not (theta0 == 0 and theta1 == 0):
+        precision_metrics = calculate_model_precision(theta0, theta1, mileage_mean, mileage_std, price_mean, price_std, data_file)
     
     # Check if using default values
     if theta0 == 0 and theta1 == 0:
         print("\n⚠️  WARNING: Using default values (0, 0)")
         print("   Please train a model first using train_model.py")
         print("   Predictions will not be accurate!\n")
+    else:
+        print(f"\n✅ Model ready for predictions!")
+        print(f"   The model can predict car prices with an average error of ±${precision_metrics['mae'] if precision_metrics else 'Unknown':.0f}" if precision_metrics else "")
     
     print("\n🔢 Car Price Calculator")
     print("   Enter mileage to get price prediction")
@@ -384,7 +470,7 @@ def main():
                 viz_choice = input().strip().lower()
                 if viz_choice in ['y', 'yes']:
                     print("📈 Loading training data for visualization...")
-                    training_mileage, training_prices = load_training_data()
+                    training_mileage, training_prices = load_training_data(data_file)
                     if training_mileage and training_prices:
                         print("🎨 Creating visualization...")
                         visualize_prediction(training_mileage, training_prices, theta0, theta1, 

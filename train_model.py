@@ -3,10 +3,26 @@ import json
 import matplotlib.pyplot as plt
 
 def open_and_parse():
-    """Open the file in data/data.csv and parse the content"""
+    """Open and parse CSV file, preferring data2.csv over data.csv if available"""
+    import os
+    
+    # Check for expanded dataset first, then fallback to original
+    if os.path.exists("data/data2.csv"):
+        filename = "data/data2.csv"
+        model_output = "trained_model2.json"
+        print("🔍 Found expanded dataset (data2.csv), using it for better training...")
+    else:
+        filename = "data/data.csv"
+        model_output = "trained_model.json"
+        print("📄 Using original dataset (data.csv)...")
+    
     # Open the file with read permission and save it in file
-    with open("data/data.csv", "r") as file:
-        content = file.read()
+    try:
+        with open(filename, "r") as file:
+            content = file.read()
+    except FileNotFoundError:
+        print(f"❌ Error: File '{filename}' not found")
+        return None, None, None
     
     # Split by lines first, then by commas
     lines = content.strip().split('\n')  # Split into lines
@@ -18,7 +34,7 @@ def open_and_parse():
     # Validate that the first line is exactly "km,price"
     if not lines:
         print("❌ Error: Empty file")
-        return None, None
+        return None, None, None
     
     expected_header = "km,price"
     actual_header = lines[0].strip()
@@ -27,7 +43,7 @@ def open_and_parse():
         print(f"❌ Error: Invalid header")
         print(f"Expected: '{expected_header}'")
         print(f"Found: '{actual_header}'")
-        return None, None
+        return None, None, None
     
     print("✅ Valid header detected:", actual_header)
     
@@ -55,7 +71,7 @@ def open_and_parse():
 
     print(f"🧮 Total training points: {len(mileage)} points")
     
-    return mileage, prices  # Return both lists separately
+    return mileage, prices, model_output  # Return both lists and model filename
 
 
 def normalize_data(data):
@@ -362,7 +378,7 @@ def main():
     print("=" * 60)
 
     print("\n📄 Opening and parsing csv:")
-    mileage, prices = open_and_parse()
+    mileage, prices, model_filename = open_and_parse()
     if mileage is None or prices is None:
         print("❌ Aborting training...")
         return
@@ -374,7 +390,7 @@ def main():
     )
     
     # Save model parameters including normalization data
-    save_model(theta0, theta1, mileage_mean, mileage_std, price_mean, price_std, "trained_model.json")
+    save_model(theta0, theta1, mileage_mean, mileage_std, price_mean, price_std, model_filename)
     
     # Show the trained model information
     print(f"\n📊 Trained Model Information:")
@@ -384,7 +400,7 @@ def main():
     print(f"   Price normalization: mean={price_mean:.2f}, std={price_std:.2f}")
     
     print(f"\n✅ Training completed successfully!")
-    print(f"   All parameters saved to 'data/trained_model.json'")
+    print(f"   All parameters saved to 'data/{model_filename}'")
     
     # Optional visualization
     print(f"\n🎨 Do you want to visualize the data and regression line? (y/n)")
